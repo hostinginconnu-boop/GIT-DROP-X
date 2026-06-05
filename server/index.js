@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/inconnu.html'));
+  res.sendFile(path.join(__dirname, '../inconnu/inconnu.html'));
 });
 
 app.get('/health', (req, res) => {
