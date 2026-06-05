@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitDrop X ⚡ — Premium Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0f0f15;
+    --bg-secondary: #1a1a24;
+    --surface-light: rgba(255,255,255,0.04);
+    --surface-medium: rgba(255,255,255,0.08);
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-accent: rgba(88,166,255,0.25);
+    
+    --primary: #58a6ff;
+    --primary-light: #79c0ff;
+    --primary-dark: #3b82f6;
+    --accent-cyan: #39d0d8;
+    --accent-purple: #a371f7;
+    --accent-pink: #f85149;
+    
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --text-tertiary: #6e7681;
+    
+    --success: #3fb950;
+    --warning: #d29922;
+    --error: #f85149;
+    
+    --glass-blur: 16px;
+    --transition-fast: 0.2s;
+    --transition-smooth: 0.35s;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Background Effects */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 100% 80% at 15% 5%, rgba(88,166,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 90% 70% at 85% 95%, rgba(57,208,216,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 60% at 50% 50%, rgba(163,113,247,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* ─── TOKEN GATE ─── */
+  #token-gate {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .gate-logo {
+    text-align: center;
+    animation: fadeDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .gate-logo h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  .gate-logo p {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .gate-card {
+    width: 100%;
+    max-width: 520px;
+    background: linear-gradient(135deg, rgba(15,15,21,0.8) 0%, rgba(26,26,36,0.6) 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    padding: 3rem;
+    backdrop-filter: blur(var(--glass-blur));
+    animation: fadeUp 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(88,166,255,0.08), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
+  .gate-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(88,166,255,0.4), transparent);
+  }
+
+  .gate-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(88,166,255,0.1), rgba(163,113,247,0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .gate-label {
+    font-size: 0.7rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+  }
+
+  .gate-label::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    box-shadow: 0 0 12px var(--primary-light);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .howto {
+    background: rgba(88,166,255,0.05);
+    border: 1px solid rgba(88,166,255,0.15);
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.8rem;
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  .howto a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(57,208,216,0.3);
+    transition: all var(--transition-fast);
+    font-weight: 500;
+  }
+  .howto a:hover {
+    color: var(--accent-cyan);
+    border-bottom-color: rgba(57,208,216,0.6);
+  }
+
+  .howto-steps { list-style: none; counter-reset: steps; }
+  .howto-steps li {
+    counter-increment: steps;
+    padding: 0.3rem 0 0.3rem 1.8rem;
+    position: relative;
+  }
+  .howto-steps li::before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    color: var(--primary-light);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .input-wrap input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 0.95rem 3.2rem 0.95rem 1.2rem;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: all var(--transition-smooth);
+    letter-spacing: 0.5px;
+  }
+
+  .input-wrap input:focus {
+    border-color: var(--primary);
+    background: rgba(88,166,255,0.05);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.1), inset 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  .eye-btn {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: color var(--transition-fast);
+  }
+  .eye-btn:hover { color: var(--primary-light); }
+
+  .btn-main {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+    color: var(--bg-dark);
+    border: none;
+    border-radius: 12px;
+    padding: 1.1rem 1.5rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+    box-shadow: 0 4px 15px rgba(88,166,255,0.25);
+  }
+
+  .btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88,166,255,0.35);
+  }
+
+  .btn-main:active { transform: translateY(0); }
+
+  .btn-main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+  .btn-main:hover::after { transform: translateX(100%); }
+
+  .gate-error {
+    margin-top: 1rem;
+    color: var(--error);
+    font-size: 0.75rem;
+    text-align: center;
+    min-height: 1.2rem;
+    font-weight: 500;
+  }
+
+  .gate-footer {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    animation: fadeUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+    letter-spacing: 1px;
+  }
+  .gate-footer span { color: var(--primary-light); font-weight: 600; }
+
+  /* ─── MAIN APP ─── */
+  #main-app {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  #main-app.active { display: flex; }
+
+  /* NAVBAR */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(15,15,21,0.6);
+    backdrop-filter: blur(var(--glass-blur));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 rgba(88,166,255,0.08);
+  }
+
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-light), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 0.75rem;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .token-badge {
+    background: rgba(88,166,255,0.1);
+    border: 1px solid rgba(88,166,255,0.3);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    color: var(--primary-light);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .logout-btn {
+    background: rgba(248,81,73,0.08);
+    border: 1px solid rgba(248,81,73,0.25);
+    color: var(--error);
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    letter-spacing: 0.5px;
+  }
+  .logout-btn:hover {
+    background: rgba(248,81,73,0.15);
+    box-shadow: 0 0 15px rgba(248,81,73,0.2);
+  }
+
+  /* MAIN LAYOUT */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 2rem;
+    padding: 2.5rem;
+    flex: 1;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+
+  /* PANEL */
+  .panel {
+    background: linear-gradient(135deg, rgba(26,26,36,0.4) 0%, rgba(15,15,21,0.3) 100%);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 2rem;
+    backdrop-filter: blur(var(--glass-blur));
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(88,166,255,0.2), transparent);
+  }
+
+  .panel-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .panel-title .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(88,166,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem;
+    border: 1px solid rgba(88,166,255,0.2);
+  }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-group label {
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    outline: none;
+    transition: all var(--transition-smooth);
+    resize: none;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: var(--primary);
+    background: rgba(88,166,255,0.05);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.1);
+  }
+
+  .form-group select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  /* TOGGLE */
+  .visibility-toggle {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .vis-btn {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: rgba(0,0,0,0.15);
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    letter-spacing: 0.5px;
+  }
+
+  .vis-btn.active {
+    background: rgba(88,166,255,0.15);
+    border-color: var(--primary);
+    color: var(--primary-light);
+  }
+
+  /* DROPZONE */
+  .dropzone {
+    border: 2px dashed rgba(88,166,255,0.2);
+    border-radius: 14px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    position: relative;
+    margin-top: 1.2rem;
+    background: rgba(88,166,255,0.02);
+  }
+
+  .dropzone:hover, .dropzone.dragging {
+    border-color: var(--primary);
+    background: rgba(88,166,255,0.08);
+    box-shadow: inset 0 0 30px rgba(88,166,255,0.08);
+  }
+
+  .dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .drop-icon {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    display: block;
+    filter: drop-shadow(0 0 12px rgba(88,166,255,0.3));
+    animation: float 3.5s ease-in-out infinite;
+  }
+
+  .drop-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+  }
+
+  .drop-sub {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+  }
+
+  .file-list {
+    margin-top: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    font-size: 0.75rem;
+    animation: slideIn 0.3s ease both;
+  }
+
+  .file-item-name { color: var(--accent-cyan); flex: 1; font-weight: 500; }
+  .file-item-size { color: var(--text-tertiary); margin: 0 1rem; font-size: 0.7rem; }
+  .file-remove {
+    background: none;
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+  }
+  .file-remove:hover { opacity: 1; }
+
+  /* DEPLOY BUTTON */
+  .deploy-wrap {
+    margin-top: 2rem;
+    position: relative;
+  }
+
+  .btn-deploy {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
+    border: none;
+    border-radius: 12px;
+    color: var(--bg-dark);
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    box-shadow: 0 6px 20px rgba(88,166,255,0.3);
+  }
+
+  .btn-deploy:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(88,166,255,0.4);
+  }
+
+  .btn-deploy:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-deploy .btn-glow {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transform: translateX(-200%);
+    animation: btnGlow 3s ease infinite;
+  }
+
+  /* CONSOLE */
+  .console-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .console-box {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 1.5rem;
+    height: 360px;
+    overflow-y: auto;
+    font-size: 0.75rem;
+    line-height: 1.9;
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .console-box::-webkit-scrollbar { width: 5px; }
+  .console-box::-webkit-scrollbar-track { background: transparent; }
+  .console-box::-webkit-scrollbar-thumb { background: rgba(88,166,255,0.2); border-radius: 3px; }
+
+  .console-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #f85149; }
+  .dot-y { background: #d29922; }
+  .dot-g { background: #3fb950; }
+
+  .console-title-bar {
+    flex: 1;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+
+  .log-line {
+    display: flex;
+    gap: 0.8rem;
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .log-prefix { color: var(--primary); opacity: 0.7; flex-shrink: 0; font-weight: 600; }
+  .log-text { color: var(--text-secondary); }
+  .log-text.success { color: var(--success); font-weight: 600; }
+  .log-text.error { color: var(--error); font-weight: 600; }
+  .log-text.info { color: var(--accent-cyan); }
+  .log-text.warn { color: var(--warning); }
+
+  /* RESULT CARD */
+  .result-card {
+    background: rgba(63,185,80,0.08);
+    border: 1px solid rgba(63,185,80,0.25);
+    border-radius: 14px;
+    padding: 1.5rem;
+    display: none;
+    animation: fadeUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .result-card.visible { display: block; }
+  .result-card.error-card {
+    background: rgba(248,81,73,0.08);
+    border-color: rgba(248,81,73,0.25);
+  }
+
+  .result-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--success);
+    letter-spacing: 0.5px;
+  }
+
+  .result-card.error-card .result-title { color: var(--error); }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .result-row:last-child { border-bottom: none; }
+  .result-key { color: var(--text-tertiary); font-weight: 600; }
+  .result-val { color: var(--text-primary); text-align: right; max-width: 60%; word-break: break-all; }
+
+  .repo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--accent-cyan);
+    text-decoration: none;
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.7rem 1.2rem;
+    background: rgba(57,208,216,0.1);
+    border: 1px solid rgba(57,208,216,0.25);
+    border-radius: 10px;
+    transition: all var(--transition-smooth);
+    width: 100%;
+    font-weight: 600;
+  }
+  .repo-link:hover {
+    background: rgba(57,208,216,0.2);
+    box-shadow: 0 0 20px rgba(57,208,216,0.2);
+  }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .stat-box {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all var(--transition-smooth);
+  }
+
+  .stat-box:hover {
+    border-color: var(--primary);
+    background: rgba(88,166,255,0.08);
+  }
+
+  .stat-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+    font-weight: 600;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin-top: 1.2rem;
+    display: none;
+  }
+  .progress-wrap.visible { display: block; }
+
+  .progress-bar-bg {
+    height: 5px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent-cyan));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 15px var(--primary);
+  }
+
+  .progress-text {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 0.5rem;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* SIGNATURE */
+  .signature {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border-subtle);
+    letter-spacing: 1px;
+  }
+  .signature span { color: var(--primary-light); font-weight: 600; }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes shimmer {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+  @keyframes btnGlow {
+    0% { transform: translateX(-200%); }
+    50% { transform: translateX(200%); }
+    100% { transform: translateX(200%); }
+  }
+  @keyframes scanline {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100vh); }
+  }
+
+  .scanline {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(88,166,255,0.05), transparent);
+    pointer-events: none;
+    animation: scanline 5s linear infinite;
+    z-index: 999;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+  ::-webkit-scrollbar-thumb { background: rgba(88,166,255,0.25); border-radius: 3px; }
+
+  /* TYPING */
+  .typing::after {
+    content: '▋';
+    animation: blink 0.8s step-end infinite;
+    color: var(--primary);
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .lang-switch {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .lang-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all var(--transition-fast);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .lang-btn.active {
+    background: rgba(88,166,255,0.15);
+    border-color: var(--primary);
+    color: var(--primary-light);
+  }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="grid-bg"></div>
+
+<div id="app">
+
+  <!-- TOKEN GATE -->
+  <div id="token-gate">
+    <div class="gate-logo">
+      <h1>GitDrop X ⚡</h1>
+      <p>GitHub Automation Engine</p>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-label">Access Required</div>
+
+      <div class="howto">
+        <strong style="color:#f0f6fc; display:block; margin-bottom:0.6rem;">🔑 How to get your GitHub Token</strong>
+        <ol class="howto-steps">
+          <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a></li>
+          <li>Set a token name (ex: GitDrop X)</li>
+          <li>Select <strong style="color:var(--primary-light)">repo</strong> scope (full control)</li>
+          <li>Click <strong style="color:var(--primary-light)">Generate token</strong></li>
+          <li>Copy &amp; paste it below</li>
+        </ol>
+        <div style="margin-top:0.8rem; padding-top:0.8rem; border-top:1px solid rgba(255,255,255,0.08)">
+          🇫🇷 <a href="https://github.com/settings/tokens/new" target="_blank">Créer mon token GitHub →</a>
+        </div>
+      </div>
+
+      <div class="lang-switch" style="margin-bottom:1.5rem;">
+        <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+      </div>
+
+      <div class="input-wrap">
+        <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+        <button class="eye-btn" onclick="toggleToken()" title="Show/hide">👀</button>
+      </div>
+
+      <button class="btn-main" onclick="authenticate()">
+        🔓 <span id="auth-btn-text">UNLOCK GITDROP X</span>
+      </button>
+
+      <div class="gate-error" id="gate-error"></div>
+    </div>
+
+    <div class="gate-footer">
+      GitDrop X ⚡ &nbsp;·&nbsp; Premium Edition
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="main-app">
+    <nav>
+      <div class="nav-brand">GitDrop X ⚡</div>
+      <div class="nav-info">
+        <div class="lang-switch">
+          <button class="lang-btn active" data-lang2="en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" data-lang2="fr" onclick="setLang('fr')">FR</button>
+        </div>
+        <div class="status-dot"></div>
+        <div class="token-badge" id="nav-token-badge">Token ✓</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </nav>
+
+    <div class="workspace">
+      <!-- LEFT: FORM -->
+      <div>
+        <div class="panel">
+          <div class="panel-title">
+            <div class="icon">📦</div>
+            <span id="label-repo-config">Repository Configuration</span>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label id="label-repo-name">Repo Name</label>
+              <input type="text" id="repo-name" placeholder="my-awesome-project">
+            </div>
+            <div class="form-group">
+              <label id="label-visibility">Visibility</label>
+              <div class="visibility-toggle">
+                <button class="vis-btn active" onclick="setVisibility(this, false)">🌍 Public</button>
+                <button class="vis-btn" onclick="setVisibility(this, true)">🔒 Private</button>
+              </div>
+            </div>
+            <div class="form-group full">
+              <label id="label-description">Description</label>
+              <input type="text" id="repo-desc" placeholder="A project created with GitDrop X ⚡">
+            </div>
+            <div class="form-group full">
+              <label id="label-commit-msg">Commit Message</label>
+              <input type="text" id="commit-msg" placeholder="🚀 Initial commit — GitDrop X" value="🚀 Initial commit — GitDrop X">
+            </div>
+          </div>
+
+          <div style="margin-top:2rem">
+            <div class="panel-title" style="margin-bottom:0.8rem;">
+              <div class="icon">📁</div>
+              <span id="label-files">Files to Upload</span>
+            </div>
+
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="file-input" multiple onchange="handleFiles(this.files)">
+              <span class="drop-icon">⬆️</span>
+              <div class="drop-title" id="drop-title">Drop files here</div>
+              <div class="drop-sub" id="drop-sub">or click to browse · any format</div>
+            </div>
+
+            <div class="file-list" id="file-list"></div>
+          </div>
+
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0%</div>
+          </div>
+
+          <div class="deploy-wrap">
+            <button class="btn-deploy" id="deploy-btn" onclick="deploy()">
+              <div class="btn-glow"></div>
+              🚀 <span id="deploy-btn-text">CREATE & DEPLOY ⚡</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: CONSOLE -->
+      <div class="console-panel">
+        <div class="panel">
+          <div class="panel-title">
+            <div class="icon">⚡</div>
+            <span id="label-live-console">Live Console</span>
+          </div>
+
+          <div class="console-box" id="console-box">
+            <div class="console-header">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <div class="console-title-bar">GITDROP X — ENGINE v2.0</div>
+            </div>
+            <div class="log-line">
+              <span class="log-prefix">›</span>
+              <span class="log-text info" id="ready-msg">System ready. Awaiting deployment...</span>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-num" id="stat-repos">0</div>
+              <div class="stat-label" id="label-stat-repos">Repos</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-files">0</div>
+              <div class="stat-label" id="label-stat-files">Files</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-commits">0</div>
+              <div class="stat-label" id="label-stat-commits">Commits</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-card" id="result-card">
+          <div class="result-title" id="result-title">✅ Repository Created</div>
+          <div id="result-rows"></div>
+          <a href="#" id="repo-link" class="repo-link" target="_blank">🔗 Open on GitHub →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="signature">
+      GitDrop X ⚡ &nbsp;·&nbsp; Premium Edition
+    </div>
+  </div>
+</div>
+
+<script>
+  let githubToken = '';
+  let isPrivate = false;
+  let uploadedFiles = [];
+  let sessionRepos = 0;
+  let sessionFiles = 0;
+  let sessionCommits = 0;
+  let currentLang = 'en';
+
+  const i18n = {
+    en: {
+      unlockBtn: 'UNLOCK GITDROP X',
+      deployBtn: 'CREATE & DEPLOY ⚡',
+      repoConfig: 'Repository Configuration',
+      repoName: 'Repo Name',
+      visibility: 'Visibility',
+      description: 'Description',
+      commitMsg: 'Commit Message',
+      files: 'Files to Upload',
+      dropTitle: 'Drop files here',
+      dropSub: 'or click to browse · any format',
+      liveConsole: 'Live Console',
+      statRepos: 'Repos',
+      statFiles: 'Files',
+      statCommits: 'Commits',
+      readyMsg: 'System ready. Awaiting deployment...',
+      errorEmpty: '⚠ Please enter your GitHub token',
+      errorInvalid: '⚠ Invalid token format (must start with ghp_ or github_pat_)',
+      errorAuth: '⚠ Authentication failed. Check your token.',
+      connecting: 'Connecting to GitHub...',
+      authenticating: 'Authenticating...',
+      authOk: 'Authenticated as',
+      checkRepo: 'Checking repository...',
+      repoExists: '⚠ Repository already exists:',
+      creating: 'Creating repository...',
+      repoCreated: 'Repository created:',
+      uploading: 'Uploading file',
+      of: 'of',
+      uploaded: 'uploaded ✔',
+      committing: 'Finalizing commit...',
+      pushing: 'Push successful ✔',
+      done: 'Deployment complete ✔',
+      resultTitle: '✅ Repository Created',
+      errorTitle: '❌ Error Detected',
+      noFiles: '⚠ No files selected. Add at least one file.',
+      noRepo: '⚠ Please enter a repository name.',
+    },
+    fr: {
+      unlockBtn: 'ACCÉDER À GITDROP X',
+      deployBtn: 'CRÉER & DÉPLOYER ⚡',
+      repoConfig: 'Configuration du Repository',
+      repoName: 'Nom du Repo',
+      visibility: 'Visibilité',
+      description: 'Description',
+      commitMsg: 'Message de Commit',
+      files: 'Fichiers à Uploader',
+      dropTitle: 'Déposez vos fichiers ici',
+      dropSub: 'ou cliquez pour parcourir · tout format',
+      liveConsole: 'Console Live',
+      statRepos: 'Repos',
+      statFiles: 'Fichiers',
+      statCommits: 'Commits',
+      readyMsg: 'Système prêt. En attente de déploiement...',
+      errorEmpty: '⚠ Veuillez entrer votre token GitHub',
+      errorInvalid: '⚠ Format invalide (doit commencer par ghp_ ou github_pat_)',
+      errorAuth: '⚠ Authentification échouée. Vérifiez votre token.',
+      connecting: 'Connexion à GitHub...',
+      authenticating: 'Authentification...',
+      authOk: 'Authentifié en tant que',
+      checkRepo: 'Vérification du repository...',
+      repoExists: '⚠ Le repository existe déjà :',
+      creating: 'Création du repository...',
+      repoCreated: 'Repository créé :',
+      uploading: 'Upload du fichier',
+      of: 'sur',
+      uploaded: 'uploadé ✔',
+      committing: 'Finalisation du commit...',
+      pushing: 'Push réussi ✔',
+      done: 'Déploiement terminé ✔',
+      resultTitle: '✅ Repository Créé',
+      errorTitle: '❌ Erreur Détectée',
+      noFiles: '⚠ Aucun fichier sélectionné.',
+      noRepo: '⚠ Entrez un nom de repository.',
+    }
+  };
+
+  function t(key) { return i18n[currentLang][key] || key; }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-lang]').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+    document.querySelectorAll('[data-lang2]').forEach(b => b.classList.toggle('active', b.dataset.lang2 === lang));
+    applyTranslations();
+  }
+
+  function applyTranslations() {
+    const ids = ['unlockBtn','deployBtn','repoConfig','repoName','visibility','description','commitMsg','files','dropTitle','dropSub','liveConsole','statRepos','statFiles','statCommits'];
+    const map = {
+      unlockBtn: 'auth-btn-text', deployBtn: 'deploy-btn-text',
+      repoConfig: 'label-repo-config', repoName: 'label-repo-name',
+      visibility: 'label-visibility', description: 'label-description',
+      commitMsg: 'label-commit-msg', files: 'label-files',
+      dropTitle: 'drop-title', dropSub: 'drop-sub',
+      liveConsole: 'label-live-console', statRepos: 'label-stat-repos',
+      statFiles: 'label-stat-files', statCommits: 'label-stat-commits',
+    };
+    for (const [key, id] of Object.entries(map)) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = t(key);
+    }
+  }
+
+  function toggleToken() {
+    const inp = document.getElementById('token-input');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  async function authenticate() {
+    const inp = document.getElementById('token-input');
+    const val = inp.value.trim();
+    const err = document.getElementById('gate-error');
+    const btn = document.getElementById('auth-btn-text');
+
+    if (!val) { err.textContent = t('errorEmpty'); return; }
+    if (!val.startsWith('ghp_') && !val.startsWith('github_pat_')) {
+      err.textContent = t('errorInvalid'); return;
+    }
+
+    btn.textContent = '...';
+    err.textContent = '';
+
+    try {
+      const res = await fetch('https://api.github.com/user', {
+        headers: { Authorization: `token ${val}`, 'User-Agent': 'GitDropX' }
+      });
+      if (!res.ok) throw new Error();
+      const user = await res.json();
+      githubToken = val;
+      document.getElementById('nav-token-badge').textContent = `@${user.login} ✓`;
+      document.getElementById('token-gate').style.display = 'none';
+      const app = document.getElementById('main-app');
+      app.classList.add('active');
+      log(t('authOk') + ` @${user.login}`, 'success');
+    } catch {
+      err.textContent = t('errorAuth');
+      err.style.animation = 'none';
+      err.offsetHeight;
+      err.style.animation = 'shake 0.4s ease';
+    }
+    btn.textContent = t('unlockBtn');
+  }
+
+  document.getElementById('token-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') authenticate();
+  });
+
+  function logout() {
+    githubToken = '';
+    uploadedFiles = [];
+    document.getElementById('file-list').innerHTML = '';
+    document.getElementById('console-box').innerHTML = `<div class="console-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="console-title-bar">GITDROP X — ENGINE v2.0</div></div>`;
+    document.getElementById('result-card').classList.remove('visible');
+    document.getElementById('main-app').classList.remove('active');
+    document.getElementById('token-gate').style.display = 'flex';
+    document.getElementById('token-input').value = '';
+    document.getElementById('gate-error').textContent = '';
+  }
+
+  function setVisibility(btn, priv) {
+    isPrivate = priv;
+    document.querySelectorAll('.vis-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function handleFiles(files) {
+    for (const f of files) {
+      if (!uploadedFiles.find(x => x.name === f.name)) {
+        uploadedFiles.push(f);
+      }
+    }
+    renderFileList();
+  }
+
+  function renderFileList() {
+    const list = document.getElementById('file-list');
+    list.innerHTML = uploadedFiles.map((f, i) => `
+      <div class="file-item">
+        <span class="file-item-name">📄 ${f.name}</span>
+        <span class="file-item-size">${(f.size / 1024).toFixed(1)} KB</span>
+        <button class="file-remove" onclick="removeFile(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function removeFile(i) {
+    uploadedFiles.splice(i, 1);
+    renderFileList();
+  }
+
+  const dz = document.getElementById('dropzone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragging'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragging'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('dragging');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  function log(msg, type = 'default') {
+    const box = document.getElementById('console-box');
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    line.innerHTML = `<span class="log-prefix">›</span><span class="log-text ${type}">${msg}</span>`;
+    box.appendChild(line);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function setProgress(pct, label) {
+    const wrap = document.getElementById('progress-wrap');
+    wrap.classList.add('visible');
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = label || pct + '%';
+  }
+
+  function toBase64(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function deploy() {
+    const repoName = document.getElementById('repo-name').value.trim();
+    const desc = document.getElementById('repo-desc').value.trim();
+    const commitMsg = document.getElementById('commit-msg').value.trim() || '🚀 Initial commit — GitDrop X';
+    const btn = document.getElementById('deploy-btn');
+    const resultCard = document.getElementById('result-card');
+
+    resultCard.classList.remove('visible');
+    resultCard.className = 'result-card';
+    document.getElementById('console-box').innerHTML = `<div class="console-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="console-title-bar">GITDROP X — ENGINE v2.0</div></div>`;
+
+    if (!repoName) { log(t('noRepo'), 'error'); return; }
+    if (uploadedFiles.length === 0) { log(t('noFiles'), 'error'); return; }
+
+    btn.disabled = true;
+    setProgress(0, '0%');
+
+    try {
+      log(t('connecting'), 'info');
+      await sleep(400);
+      log(t('authenticating'), 'info');
+
+      const userRes = await fetch('https://api.github.com/user', {
+        headers: { Authorization: `token ${githubToken}` }
+      });
+      const user = await userRes.json();
+
+      log(t('checkRepo'), 'info');
+      await sleep(300);
+
+      const checkRes = await fetch(`https://api.github.com/repos/${user.login}/${repoName}`, {
+        headers: { Authorization: `token ${githubToken}` }
+      });
+
+      if (checkRes.ok) {
+        log(`${t('repoExists')} ${repoName}`, 'warn');
+      } else {
+        log(t('creating'), 'info');
+        const createRes = await fetch('https://api.github.com/user/repos', {
+          method: 'POST',
+          headers: {
+            Authorization: `token ${githubToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: repoName,
+            description: desc || `Created with GitDrop X ⚡`,
+            private: isPrivate,
+            auto_init: false
+          })
+        });
+        if (!createRes.ok) {
+          const e = await createRes.json();
+          throw new Error(e.message || 'Failed to create repository');
+        }
+        log(`${t('repoCreated')} ${user.login}/${repoName}`, 'success');
+        await sleep(600);
+      }
+
+      setProgress(20, '20%');
+
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        const file = uploadedFiles[i];
+        const pct = Math.round(20 + ((i + 1) / uploadedFiles.length) * 70);
+
+        log(`${t('uploading')} ${i + 1} ${t('of')} ${uploadedFiles.length}: ${file.name}`, 'info');
+
+        const content = await toBase64(file);
+
+        let sha;
+        const existing = await fetch(
+          `https://api.github.com/repos/${user.login}/${repoName}/contents/${file.name}`,
+          { headers: { Authorization: `token ${githubToken}` } }
+        );
+        if (existing.ok) {
+          const ex = await existing.json();
+          sha = ex.sha;
+        }
+
+        const uploadRes = await fetch(
+          `https://api.github.com/repos/${user.login}/${repoName}/contents/${file.name}`,
+          {
+            method: 'PUT',
+            headers: {
+              Authorization: `token ${githubToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: commitMsg,
+              content: content,
+              ...(sha ? { sha } : {})
+            })
+          }
+        );
+
+        if (!uploadRes.ok) {
+          const e = await uploadRes.json();
+          throw new Error(`Failed to upload ${file.name}: ${e.message}`);
+        }
+
+        log(`${file.name} ${t('uploaded')}`, 'success');
+        setProgress(pct, pct + '%');
+        await sleep(200);
+      }
+
+      log(t('committing'), 'info');
+      await sleep(300);
+      setProgress(95, '95%');
+      log(t('pushing'), 'success');
+      await sleep(300);
+      setProgress(100, '100%');
+      log(t('done'), 'success');
+
+      sessionRepos++;
+      sessionFiles += uploadedFiles.length;
+      sessionCommits++;
+      document.getElementById('stat-repos').textContent = sessionRepos;
+      document.getElementById('stat-files').textContent = sessionFiles;
+      document.getElementById('stat-commits').textContent = sessionCommits;
+
+      const repoUrl = `https://github.com/${user.login}/${repoName}`;
+      showResult(true, {
+        title: t('resultTitle'),
+        rows: [
+          ['Repository', `${user.login}/${repoName}`],
+          ['Files uploaded', uploadedFiles.length],
+          ['Commit', commitMsg],
+          ['Visibility', isPrivate ? ' Private' : ' Public'],
+          ['Owner', `@${user.login}`],
+        ],
+        url: repoUrl
+      });
+
+    } catch (err) {
+      log(`ERROR: ${err.message}`, 'error');
+      showResult(false, { title: t('errorTitle'), rows: [['Reason', err.message]] });
+    }
+
+    btn.disabled = false;
+  }
+
+  function showResult(ok, data) {
+    const card = document.getElementById('result-card');
+    card.className = 'result-card visible' + (ok ? '' : ' error-card');
+    document.getElementById('result-title').textContent = data.title;
+    document.getElementById('result-rows').innerHTML = data.rows.map(([k, v]) =>
+      `<div class="result-row"><span class="result-key">${k}</span><span class="result-val">${v}</span></div>`
+    ).join('');
+    const link = document.getElementById('repo-link');
+    link.style.display = ok ? 'flex' : 'none';
+    if (ok && data.url) link.href = data.url;
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
